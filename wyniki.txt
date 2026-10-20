@@ -1,0 +1,34 @@
+zadanie ceraz.py
+=== TOP 5 KANDYDATÓW (PRZESUNIĘCIE CEZARA) ===
+1. k = 230 (0xE6) | Ocena: 100.00% | Początek: b'Wkh#Qljkw#Ihuu|\r\rWkh#qljkw#ihuu|#ohiw#wkh#kduerxu#'
+2. k = 233 (0xE9) | Ocena: 100.00% | Początek: b'The Night Ferry\n\nThe night ferry left the harbour '
+3. k = 228 (0xE4) | Ocena:  99.48% | Początek: b'Ymj%Snlmy%Kjww~\x0f\x0fYmj%snlmy%kjww~%qjky%ymj%mfwgtzw%'
+4. k = 229 (0xE5) | Ocena:  99.48% | Początek: b'Xli$Rmklx$Jivv}\x0e\x0eXli$rmklx$jivv}$pijx$xli$levfsyv$'
+5. k = 231 (0xE7) | Ocena:  99.48% | Początek: b'Vjg"Pkijv"Hgtt{\x0c\x0cVjg"pkijv"hgtt{"nghv"vjg"jctdqwt"'
+Wybierz przesunięcie k: 233
+
+takie wyniki daje uruchomienie mojego kodu, jak widac tylko jeden z tych tekstów posiada normlane zdanie, więc zakładam że tutaj chodziło o k = 233, takie też wybrałem do zapisania cezar.txt
+
+sama entropia nie rozstrzynie ponieważ tak jak na przykladize 2 teskty mogą być printable, czyli ich wszystkie znaki miescic sie w tym przedziale co trzeba, jendak dalej dla człowieka może to totalnie nie miec sensu
+
+zadanie viniary.py
+
+testy przeszly zgodnie z poleceniem, zaszyfrowalem również plik tekst_pl.txt i zgadza sie on z oryginałem
+
+w jednym przypadku gdy klucz jest 5 literowy a zarazem teskt sie powtarza cały czas który jest o dlugosci 5, te same litery które maja zaszyfrowac trafiaja na takie same. W przypadku klucza 3 literowego nie trafia idealnie za kadzym razem na ta sama litere, gdyż juz 4 litera hasla trafi na 1 litere klucza(bo sie zapetli idk).
+
+
+rc4
+
+Ponowne szyfrowanie odtwarza kryptogram nawet dla złego klucza, ponieważ szyfr RC4 korzysta z operacji XOR, która użyta dwa razy z tym samym kluczem zawsze cofa działanie do punktu wyjścia. Z kolei ranking entropii zawiedzie wtedy, gdy sam tekst jawny ma wysoką losowość (np. skompresowane pliki ZIP, zdjęcia czy programy) albo gdy analizowana próbka jest zbyt krótka, by odróżnić czytelny tekst od losowego szumu.
+
+=== TOP 5 KANDYDATÓW ===
+1. Klucz: 'tat' | Entropia: 4.3910 b/B | Początek: b"The Clockmaker's Apprentice\n\nOn his firs"
+2. Klucz: 'neg' | Entropia: 7.4304 b/B | Początek: b"\xe0m\x94\x94\xc5\xeb\xf6\x0b\xc8'\x91\x92\x08\xdd7\xd7\xabj \xc6\xad\xadn\xb8*\x91\xab5Hu\xcc<\xa4\x04\xba\xf9\x8aTn%"
+3. Klucz: 'mcn' | Entropia: 7.4512 b/B | Początek: b'V\xafMy\x04\xbb\x03_\xd8\xf1\xffq\x17\\\x01\xe4\x96h\xe7\x0e\xffH\xbb\xbbP\x90E\xf3\x07KF|@\x05\x80z`\x95\xfa5'
+4. Klucz: 'oxo' | Entropia: 7.4536 b/B | Początek: b'\xf4%Q\xa6\xb4\xbe\xec\x83\x7f\x0ecT\xda\x08\xa4?\xbc\xad\xbc\xa51\xb5\xaa\xd1\x02\x84\xaa\xa1\xa8\x98\xa6>e\x93\xd9MI\x08\xe6\xe9'
+5. Klucz: 'tnx' | Entropia: 7.4592 b/B | Początek: b'\xb3\x00f\xaen\xf3\xae\x98\xbb\xc0\x86\xa0p\xe8\xbbGHW\x0eA\xb6j(Bjp\x9b\xecP\xa21\xa0+u\xebxc\xd9/\x0c'
+
+Liczba prób: 17576
+Czas przeszukiwania: 7.5058 s
+Entropia całego kryptogramu (rc4.bin): 7.9271 b/B
